@@ -76,9 +76,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   var s = [0x5A, 0xA5, 0x05, 0x01,0x01,0x02,0x03, 0x5A];
   late Timer timer;
  late DateTime first;
-  void _incrementCounter() {
-    store.counter++;
-  }
+  // void _incrementCounter() {
+  //   store.counter++;
+  // }
 
   @override
   void initState() {
@@ -171,26 +171,28 @@ first=DateTime.now();
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              '你已经按了这么多次按钮了:',            ),
-            Obx(() => Text(
-                  store.counter.toString(),
-                  style: Theme.of(context).textTheme.headline4,
-                )),
+            // const Text(
+            //   '你已经按了这么多次按钮了:',            ),
+            // Obx(() => Text(
+            //       store.counter.toString(),
+            //       style: Theme.of(context).textTheme.headline4,
+            //     )),
             Text("延时(ms):$textDelayTime,     接收数据:$textData"),
-            ElevatedButton(
-                onPressed: () {
-                  store.save("counter", store.counter);
-                  Navigator.of(context).pushNamed("/second");
-                },
-                child: Text("跳转"))
+            // ElevatedButton(
+            //     onPressed: () {
+            //       store.save("counter", store.counter);
+            //       Navigator.of(context).pushNamed("/second");
+            //     },
+            //     child: Text("跳转"))
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: '增加',
-        child: const Icon(Icons.network_check),
+        onPressed: (){store.save("counter", store.counter);
+        Navigator.of(context).pushNamed("/second");},
+        tooltip: '设置'
+            '',
+        child: const Icon(Icons.settings),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
