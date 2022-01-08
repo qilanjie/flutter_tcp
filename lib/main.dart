@@ -10,9 +10,19 @@ import 'package:flutter_tcp/tcp_server.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-main() {
+main() async {
   runApp(const MyApp());
+  Map<Permission, PermissionStatus> statuses = await [
+    Permission.location,
+    Permission.storage,
+  ].request();
+  print(statuses[Permission.location]);
+  await TcpServer.initServerSocket();
+
+
+
 }
 
 class MyApp extends StatelessWidget {
@@ -73,8 +83,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   final store = Get.put(AppModel());
   var textDelayTime = "";
-  var textData="";
-
+  var textData = "";
 
   // void _incrementCounter() {
   //   store.counter++;
@@ -83,13 +92,22 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     store.init();
-    TcpServer.initServerSocket();
-    TcpServer.mStream.listen((rev) {
-      setState(() {
-        textDelayTime= (DateTime.now().difference(TcpServer.first)).inMilliseconds.toString() ;
-        textData=rev.toString();
-      });
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      print("run");
+      if (TcpServer.mStream != null) {
+        TcpServer.mStream?.listen((rev) {
+          setState(() {
+            textDelayTime =
+                (DateTime.now().difference(TcpServer.first ?? DateTime.now()))
+                    .inMilliseconds
+                    .toString();
+            textData = rev.toString();
+          });
+        });
+        timer.cancel();
+      }
     });
+
 
     // WidgetsBinding.instance?.addObserver(this);
   }
@@ -178,8 +196,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){store.save("counter", store.counter);
-        Navigator.of(context).pushNamed("/second");},
+        onPressed: () {
+          store.save("counter", store.counter);
+          Navigator.of(context).pushNamed("/second");
+        },
         tooltip: '设置'
             '',
         child: const Icon(Icons.settings),
