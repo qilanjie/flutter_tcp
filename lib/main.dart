@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_tcp/second_page.dart';
 import 'package:flutter_tcp/stores/app.dart';
+import 'package:flutter_tcp/tcp_server.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
@@ -73,9 +74,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   final store = Get.put(AppModel());
   var textDelayTime = "";
   var textData="";
-  var s = [0x5A, 0xA5, 0x05, 0x01,0x01,0x02,0x03, 0x5A];
-  late Timer timer;
- late DateTime first;
+
+
   // void _incrementCounter() {
   //   store.counter++;
   // }
@@ -83,24 +83,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     store.init();
-    ServerSocket.bind('0.0.0.0', 2233).then((serverSocket) {
-      serverSocket.listen((socket) {
-        timer = Timer.periodic(Duration(seconds: 1), (timer) {
-first=DateTime.now();
-          socket.add(s);
-        });
-        socket.listen((rev) {
-          //       print(rev);
-          setState(() {
-            textDelayTime= (DateTime.now().difference(first)).inMilliseconds.toString() ;
-            textData=rev.toString();
-          });
-        }, onDone: () {
-
-         timer.cancel();
-        });
+    TcpServer.initServerSocket();
+    TcpServer.mStream.listen((rev) {
+      setState(() {
+        textDelayTime= (DateTime.now().difference(TcpServer.first)).inMilliseconds.toString() ;
+        textData=rev.toString();
       });
     });
+
     // WidgetsBinding.instance?.addObserver(this);
   }
 
